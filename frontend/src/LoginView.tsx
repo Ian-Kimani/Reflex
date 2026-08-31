@@ -70,6 +70,7 @@ export default function LoginView({ onLogin }: { onLogin: (data: any) => void })
 
         <div style={{ marginTop: '2rem', textAlign: 'center', opacity: 0.6, fontSize: '0.9rem' }}>
           <p style={{ margin: '0.5rem 0' }}><strong>Demo Accounts:</strong></p>
+          <p style={{ margin: 0 }}>admin@example.com / pass123</p>
           <p style={{ margin: 0 }}>retailer@example.com / pass123</p>
           <p style={{ margin: 0 }}>dispatcher@example.com / pass123</p>
           <p style={{ margin: 0 }}>rider1@example.com / pass123</p>

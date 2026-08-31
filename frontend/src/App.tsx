@@ -4,7 +4,7 @@ import RetailerView from './RetailerView'
 import DispatcherView from './DispatcherView'
 import RiderView from './RiderView'
 import LoginView from './LoginView'
-import { User } from './api'
+import type { User } from './api'
 import './index.css'
 
 function App() {
@@ -51,7 +51,7 @@ function App() {
       
       <main className="main-content">
         {user.role === 'retailer' && <RetailerView />}
-        {user.role === 'dispatcher' && <DispatcherView />}
+        {(user.role === 'dispatcher' || user.role === 'system_admin' || user.role === 'admin') && <DispatcherView />}
         {user.role === 'rider' && <RiderView userId={user.id} />}
       </main>
     </div>
