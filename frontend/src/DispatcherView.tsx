@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Users, CheckCircle, Package } from 'lucide-react'
 import { api, type DeliveryRequest, type User } from './api'
-
+import { useToast } from './ToastContext'
+import AnimatedLoader from './AnimatedLoader'
 export default function DispatcherView() {
   const [requests, setRequests] = useState<DeliveryRequest[]>([])
   const [riders, setRiders] = useState<User[]>([])
-
+  const { showToast } = useToast()
+  const [loading, setLoading] = useState(false)
   const fetchData = async () => {
     try {
       const [reqRes, usersRes] = await Promise.all([
@@ -17,8 +19,9 @@ export default function DispatcherView() {
       
       const newRiders = usersRes.data.filter((u: User) => u.role === 'rider');
       setRiders(prev => JSON.stringify(prev) === JSON.stringify(newRiders) ? prev : newRiders);
-    } catch (e) {
-      console.error('API Error:', e)
+    } catch (error: any) {
+      console.error('API Error:', error)
+      showToast('Failed to fetch dispatcher data', 'error')
     }
   }
 
@@ -30,10 +33,14 @@ export default function DispatcherView() {
 
   const handleAssign = async (id: string, riderId: string) => {
     try {
+      setLoading(true)
       await api.patch(`/delivery-requests/${id}`, { status: 'assigned', assigned_rider_id: riderId })
       fetchData()
-    } catch (e) {
-      console.error('API Error:', e)
+    } catch (error: any) {
+      console.error('API Error:', error)
+      showToast('Failed to assign rider', 'error')
+    }finally {
+      setLoading(false)
     }
   }
 
@@ -83,7 +90,20 @@ export default function DispatcherView() {
       </div>
     </div>
   )
-
+ if (loading) {
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      
+    }}>
+      <AnimatedLoader />
+    </div>
+  )
+}
   return (
     <div className="animate-in">
       <div className="stats-grid">

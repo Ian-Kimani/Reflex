@@ -1,45 +1,81 @@
 import { useState, useEffect } from 'react'
 import { CheckCircle, MapPin, Package, Award } from 'lucide-react'
 import { api, type DeliveryRequest } from './api'
+import { useToast } from './ToastContext'
+import AnimatedLoader from './AnimatedLoader'
 
 export default function RiderView({ userId }: { userId: string }) {
   const [requests, setRequests] = useState<DeliveryRequest[]>([])
   const [podRecipients, setPodRecipients] = useState<Record<string, string>>({})
   const [points, setPoints] = useState(0)
   const [riderInfo, setRiderInfo] = useState<{name: string, email: string} | null>(null)
+  const [loading, setLoading] = useState(true)
+ const { showToast } = useToast()
+ const fetchData = async (initialLoad = false) => {
+  if (!userId) return;
 
-  const fetchData = async () => {
-    if (!userId) return;
-    try {
-      const [reqRes, userRes] = await Promise.all([
-        api.get('/delivery-requests'),
-        api.get(`/users/${userId}`).catch(() => ({ data: { points: 0 } }))
-      ])
-      // Only show requests assigned to this rider
-      const newRequests = reqRes.data.filter((r: DeliveryRequest) => r.assigned_rider_id === userId);
-      setRequests(prev => JSON.stringify(prev) === JSON.stringify(newRequests) ? prev : newRequests);
-      setPoints(prev => prev === userRes.data.points ? prev : (userRes.data.points || 0));
-      setRiderInfo(prev => prev?.name === userRes.data.name ? prev : {
-        name: userRes.data.name || 'Unknown',
-        email: userRes.data.email || ''
-      });
-    } catch (e) {
-      console.error('API Error:', e)
+  try {
+    if (initialLoad) {
+      setLoading(true)
+    }
+
+    const [reqRes, userRes] = await Promise.all([
+      api.get('/delivery-requests'),
+      api.get(`/users/${userId}`).catch(() => ({ data: { points: 0 } }))
+    ])
+
+    const newRequests = reqRes.data.filter(
+      (r: DeliveryRequest) => r.assigned_rider_id === userId
+    )
+
+    setRequests(prev =>
+      JSON.stringify(prev) === JSON.stringify(newRequests)
+        ? prev
+        : newRequests
+    )
+
+    setPoints(prev =>
+      prev === userRes.data.points
+        ? prev
+        : (userRes.data.points || 0)
+    )
+
+    setRiderInfo(prev =>
+      prev?.name === userRes.data.name
+        ? prev
+        : {
+            name: userRes.data.name || 'Unknown',
+            email: userRes.data.email || ''
+          }
+    )
+
+  } catch (error: any) {
+    console.error('API Error:', error)
+    showToast('Failed to fetch rider data', 'error')
+  } finally {
+    if (initialLoad) {
+      setLoading(false)
     }
   }
+}
 
   useEffect(() => {
-    fetchData()
-    const interval = setInterval(fetchData, 5000)
-    return () => clearInterval(interval)
-  }, [userId])
+  fetchData(true)
+
+  const interval = setInterval(() => {
+    fetchData(false)
+  }, 5000)
+
+  return () => clearInterval(interval)
+}, [userId])
 
   const handleUpdateStatus = async (id: string, newStatus: DeliveryRequest['status']) => {
     try {
       await api.patch(`/delivery-requests/${id}`, { status: newStatus })
       fetchData() // Refresh points and status
-    } catch (e) {
-      console.error('API Error:', e)
+    } catch (error: any) {
+      
+      showToast('Failed to update delivery status', 'error')
     }
   }
 
@@ -49,7 +85,20 @@ export default function RiderView({ userId }: { userId: string }) {
     handleUpdateStatus(id, 'delivered')
     setPodRecipients({...podRecipients, [id]: ''})
   }
-
+ if (loading) {
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      
+    }}>
+      <AnimatedLoader />
+    </div>
+  );
+}
   return (
     <div className="animate-in" style={{ maxWidth: '600px', margin: '0 auto' }}>
       

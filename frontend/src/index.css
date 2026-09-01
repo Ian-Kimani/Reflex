@@ -135,6 +135,12 @@ p { color: var(--text-secondary); line-height: 1.6; }
 .badge.picked { background: rgba(139, 92, 246, 0.15); color: var(--status-picked); border: 1px solid rgba(139, 92, 246, 0.3); }
 .badge.delivered { background: rgba(16, 185, 129, 0.15); color: var(--status-delivered); border: 1px solid rgba(16, 185, 129, 0.3); }
 
+/* Role badges (user management) */
+.badge.role-system_admin { background: rgba(236, 72, 153, 0.15); color: var(--accent-secondary); border: 1px solid rgba(236, 72, 153, 0.3); }
+.badge.role-dispatcher { background: rgba(59, 130, 246, 0.15); color: var(--status-assigned); border: 1px solid rgba(59, 130, 246, 0.3); }
+.badge.role-retailer_staff { background: rgba(245, 158, 11, 0.15); color: var(--status-open); border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge.role-rider { background: rgba(16, 185, 129, 0.15); color: var(--status-delivered); border: 1px solid rgba(16, 185, 129, 0.3); }
+
 /* Animations */
 @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 .animate-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
