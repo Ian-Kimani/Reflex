@@ -9,6 +9,7 @@ import ReportsPage from './ReportsPage'
 import UsersPage from './UsersPage'
 import { api, type User } from './api'
 import './index.css'
+import { ToastProvider } from './ToastContext'
 
 type Tab = 'dashboard' | 'operations' | 'reports' | 'users'
 type OpsView = 'retailer' | 'dispatcher' | 'rider'
@@ -64,6 +65,7 @@ function App() {
   const currentOpsView = isAdmin ? opsView : (user.role as OpsView)
 
   return (
+    <ToastProvider>
     <div className="app-container">
       <header className="header" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -147,6 +149,7 @@ function App() {
         )}
       </main>
     </div>
+    </ToastProvider>
   )
 }
 

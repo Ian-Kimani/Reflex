@@ -1,12 +1,27 @@
 import { useState } from 'react';
 import { Download, Filter } from 'lucide-react';
 import { useDeliveryData } from './useDeliveryData';
+import AnimatedLoader from './AnimatedLoader';
 
 export default function ReportsPage() {
   const { requests, users, loading } = useDeliveryData();
   const [statusFilter, setStatusFilter] = useState('all');
 
-  if (loading) return <p style={{ opacity: 0.6 }}>Loading reports...</p>;
+
+  if (loading) {
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      
+    }}>
+      <AnimatedLoader />
+    </div>
+  );
+}
 
   const filtered = statusFilter === 'all' ? requests : requests.filter(r => r.status === statusFilter);
   const getRiderName = (id?: string) => users.find(u => u.id === id)?.name || '—';

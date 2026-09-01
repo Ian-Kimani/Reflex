@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { PlusCircle, Pencil, Trash2, X } from 'lucide-react'
 import { api, type User, type UserRole } from './api'
+import AnimatedLoader from './AnimatedLoader'
 
 const ROLES: { value: UserRole, label: string }[] = [
   { value: 'system_admin', label: 'System Admin' },
@@ -98,8 +99,20 @@ export default function UsersPage({ currentUser }: { currentUser: User }) {
     }
   }
 
-  if (loading) return <p style={{ opacity: 0.6 }}>Loading users...</p>
-
+   if (loading) {
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      
+    }}>
+      <AnimatedLoader />
+    </div>
+  );
+}
   return (
     <div className="animate-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>

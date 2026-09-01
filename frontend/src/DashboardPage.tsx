@@ -1,6 +1,8 @@
 import { BarChart3, Package, CheckCircle, Clock, Users, Award, TrendingUp } from 'lucide-react';
 import { useDeliveryData } from './useDeliveryData';
 import type { User } from './api';
+import StatusChart from './StatusChart';
+import AnimatedLoader from './AnimatedLoader';
 
 function StatCard({ icon: Icon, label, value }: { icon: any; label: string; value: string | number }) {
   return (
@@ -14,20 +16,36 @@ function StatCard({ icon: Icon, label, value }: { icon: any; label: string; valu
 
 export default function DashboardPage({ currentUser }: { currentUser: User }) {
   const { requests, users, loading } = useDeliveryData();
-  if (loading) return <p style={{ opacity: 0.6 }}>Loading dashboard...</p>;
-
+ if (loading) {
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      
+    }}>
+      <AnimatedLoader />
+    </div>
+  );
+}
   const byStatus = (s: string) => requests.filter(r => r.status === s).length;
   const rate = (subset: typeof requests) =>
     subset.length
       ? `${Math.round((subset.filter(r => r.status === 'delivered').length / subset.length) * 100)}%`
       : '—';
-
+const statusChartData = ['open', 'assigned', 'picked_up', 'delivered'].map(status => ({
+  status,
+  count: byStatus(status),
+}));
   if (currentUser.role === 'system_admin') {
     return (
       <div className="animate-in">
         <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <BarChart3 /> System Overview
         </h2>
+        <StatusChart data={statusChartData} />
         <div className="stats-grid">
           <StatCard icon={Package} label="Total Requests" value={requests.length} />
           <StatCard icon={Clock} label="Open" value={byStatus('open')} />
@@ -48,6 +66,7 @@ export default function DashboardPage({ currentUser }: { currentUser: User }) {
     return (
       <div className="animate-in">
         <h2>Dispatcher Performance</h2>
+        <StatusChart data={statusChartData} />
         <div className="stats-grid">
           <StatCard icon={Package} label="Unassigned" value={byStatus('open')} />
           <StatCard icon={Users} label="Active Riders" value={users.filter(u => u.role === 'rider').length} />
