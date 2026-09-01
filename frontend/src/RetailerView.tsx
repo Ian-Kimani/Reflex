@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { PlusCircle, Search } from 'lucide-react'
-import { api, type DeliveryRequest } from './api'
+import { api, type DeliveryRequest, type User } from './api'
 
-export default function RetailerView() {
+export default function RetailerView({ currentUser }: { currentUser: User }) {
   const [requests, setRequests] = useState<DeliveryRequest[]>([])
   const [formData, setFormData] = useState({ customer_name: '', phone: '', address: '', item_description: '' })
 
@@ -27,12 +27,12 @@ export default function RetailerView() {
       await api.post('/delivery-requests', {
         id: Date.now().toString().slice(-10),
         request_number: `REQ-${Date.now().toString().slice(-4)}`,
-        customer_id: 'cust-1', // Mock customer id
+        customer_id: currentUser.id,
         customer_name: formData.customer_name,
         address: formData.address,
         item_description: formData.item_description,
         status: 'open',
-        created_by: 'user-1' // Mock creator id
+        created_by: currentUser.id
       })
       setFormData({ customer_name: '', phone: '', address: '', item_description: '' })
       fetchRequests()

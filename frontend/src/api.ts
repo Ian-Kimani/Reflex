@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3200';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -16,14 +16,15 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('reflex_token');
-      localStorage.removeItem('reflex_user');
-      window.location.reload();
-    }
-    return Promise.reject(error);
+ (error) => {
+  const hadToken = !!localStorage.getItem('reflex_token');
+  if (error.response?.status === 401 && hadToken) {
+    localStorage.removeItem('reflex_token');
+    localStorage.removeItem('reflex_user');
+    window.location.reload();
   }
+  return Promise.reject(error);
+}
 );
 
 export interface DeliveryRequest {
@@ -45,3 +46,5 @@ export interface User {
   role: string;
   points: number;
 }
+
+export type UserRole = 'system_admin' | 'dispatcher' | 'retailer_staff' | 'rider';
